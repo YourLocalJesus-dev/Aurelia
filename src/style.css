@@ -47,6 +47,9 @@ body {
   pointer-events: none;
   z-index: 999;
   opacity: 0.03;
+  transform: translateZ(0);
+  will-change: opacity;
+  contain: strict;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
@@ -86,7 +89,8 @@ button {
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
-  transition: transform 0.08s linear, opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  will-change: transform;
+  transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
   mix-blend-mode: difference;
 }
 
@@ -108,9 +112,9 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  will-change: transform;
   transition: width 0.3s var(--ease-luxury), height 0.3s var(--ease-luxury), background 0.3s ease, border-color 0.3s ease;
   mix-blend-mode: difference;
-  backdrop-filter: blur(1px);
 }
 
 .cursor-ring.is-hover {
@@ -875,13 +879,16 @@ nav a:hover::after {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s var(--ease-luxury), box-shadow 0.4s ease, border-color 0.4s ease;
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
 .object-luxury-card:hover {
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
   border-color: #ffffff;
+  transition: transform 0.06s linear, box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
 .card-top-bar {
@@ -908,6 +915,7 @@ nav a:hover::after {
   height: 100px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
   pointer-events: none;
+  will-change: transform;
 }
 
 .sculpture-vessel {

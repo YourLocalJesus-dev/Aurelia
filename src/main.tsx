@@ -100,13 +100,21 @@ function App() {
   // Scroll Progress Variable for Parallax & Kinetic Effects
   useEffect(() => {
     let frame = 0
+    const stages = Array.from(document.querySelectorAll<HTMLElement>('.scene-stage'))
+    if (stages.length === 0) return
+
     const updateMotion = () => {
-      const stages = document.querySelectorAll<HTMLElement>('.scene-stage')
-      stages.forEach((stage) => {
+      const winH = window.innerHeight || 1
+      for (let i = 0; i < stages.length; i++) {
+        const stage = stages[i]
         const rect = stage.getBoundingClientRect()
-        const progressVal = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight || 1)))
-        stage.style.setProperty('--scroll-progress', progressVal.toFixed(3))
-      })
+        // Only update if in or near viewport
+        if (rect.bottom > -200 && rect.top < winH + 200) {
+          const totalScrollable = rect.height - winH || 1
+          const progressVal = Math.max(0, Math.min(1, -rect.top / totalScrollable))
+          stage.style.setProperty('--scroll-progress', progressVal.toFixed(3))
+        }
+      }
       frame = 0
     }
 
@@ -118,7 +126,7 @@ function App() {
 
     updateMotion()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', updateMotion)
+    window.addEventListener('resize', updateMotion, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', updateMotion)

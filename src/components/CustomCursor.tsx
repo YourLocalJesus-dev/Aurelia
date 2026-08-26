@@ -1,86 +1,139 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function CustomCursor() {
-  const [pos, setPos] = useState({ x: -100, y: -100 })
-  const [trail, setTrail] = useState({ x: -100, y: -100 })
-  const [label, setLabel] = useState('')
-  const [isHovering, setIsHovering] = useState(false)
-  const [isClicking, setIsClicking] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const dotRef = useRef<HTMLDivElement | null>(null)
+  const ringRef = useRef<HTMLDivElement | null>(null)
+  const labelRef = useRef<HTMLSpanElement | null>(null)
 
   useEffect(() => {
-    let frame: number
-    const target = { x: -100, y: -100 }
+    // Check if device is touch or small screen
+    if (window.matchMedia('(max-width: 960px), (pointer: coarse)').matches) {
+      return
+    }
+
+    const dot = dotRef.current
+    const ring = ringRef.current
+    const labelEl = labelRef.current
+    if (!dot || !ring) return
+
+    let mouseX = -100
+    let mouseY = -100
+    let ringX = -100
+    let ringY = -100
+    let isVisible = false
+    let isHovering = false
+    let isClicking = false
+    let currentLabel = ''
+    let animId: number
 
     const onMouseMove = (e: MouseEvent) => {
-      target.x = e.clientX
-      target.y = e.clientY
-      setPos({ x: e.clientX, y: e.clientY })
-      setIsVisible(true)
+      mouseX = e.clientX
+      mouseY = e.clientY
 
-      // Detect cursor targets
-      const targetElem = (e.target as HTMLElement)?.closest('[data-cursor]')
-      if (targetElem) {
-        const cursorType = targetElem.getAttribute('data-cursor') || ''
-        setLabel(cursorType)
-        setIsHovering(true)
-      } else if ((e.target as HTMLElement)?.closest('a, button, input, [role="button"]')) {
-        setLabel('')
-        setIsHovering(true)
+      if (!isVisible) {
+        isVisible = true
+        dot.style.opacity = '1'
+        ring.style.opacity = '1'
+      }
+
+      // Direct dot positioning (instant, no lag)
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`
+
+      // Target detection
+      const target = e.target as HTMLElement | null
+      const cursorTarget = target?.closest('[data-cursor]')
+      const interactiveTarget = !cursorTarget && target?.closest('a, button, input, [role="button"]')
+
+      if (cursorTarget) {
+        const nextLabel = cursorTarget.getAttribute('data-cursor') || ''
+        if (nextLabel !== currentLabel) {
+          currentLabel = nextLabel
+          if (labelEl) labelEl.textContent = currentLabel
+          ring.classList.add('has-label')
+        }
+        if (!isHovering) {
+          isHovering = true
+          dot.classList.add('is-hover')
+          ring.classList.add('is-hover')
+        }
+      } else if (interactiveTarget) {
+        if (currentLabel !== '') {
+          currentLabel = ''
+          if (labelEl) labelEl.textContent = ''
+          ring.classList.remove('has-label')
+        }
+        if (!isHovering) {
+          isHovering = true
+          dot.classList.add('is-hover')
+          ring.classList.add('is-hover')
+        }
       } else {
-        setLabel('')
-        setIsHovering(false)
+        if (currentLabel !== '') {
+          currentLabel = ''
+          if (labelEl) labelEl.textContent = ''
+          ring.classList.remove('has-label')
+        }
+        if (isHovering) {
+          isHovering = false
+          dot.classList.remove('is-hover')
+          ring.classList.remove('is-hover')
+        }
       }
     }
 
-    const onMouseDown = () => setIsClicking(true)
-    const onMouseUp = () => setIsClicking(false)
-    const onMouseLeave = () => setIsVisible(false)
+    const onMouseDown = () => {
+      isClicking = true
+      dot.classList.add('is-click')
+      ring.classList.add('is-click')
+    }
+
+    const onMouseUp = () => {
+      isClicking = false
+      dot.classList.remove('is-click')
+      ring.classList.remove('is-click')
+    }
+
+    const onMouseLeave = () => {
+      isVisible = false
+      dot.style.opacity = '0'
+      ring.style.opacity = '0'
+    }
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
-    window.addEventListener('mousedown', onMouseDown)
-    window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('mousedown', onMouseDown, { passive: true })
+    window.addEventListener('mouseup', onMouseUp, { passive: true })
     document.body.addEventListener('mouseleave', onMouseLeave)
 
-    const updateTrail = () => {
-      setTrail((prev) => ({
-        x: prev.x + (target.x - prev.x) * 0.2,
-        y: prev.y + (target.y - prev.y) * 0.2
-      }))
-      frame = requestAnimationFrame(updateTrail)
+    // Smooth physics ring follow loop
+    const animate = () => {
+      if (isVisible) {
+        ringX += (mouseX - ringX) * 0.22
+        ringY += (mouseY - ringY) * 0.22
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`
+      }
+      animId = requestAnimationFrame(animate)
     }
-    frame = requestAnimationFrame(updateTrail)
+    animId = requestAnimationFrame(animate)
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mouseup', onMouseUp)
       document.body.removeEventListener('mouseleave', onMouseLeave)
-      cancelAnimationFrame(frame)
+      cancelAnimationFrame(animId)
     }
   }, [])
-
-  if (!isVisible) return null
 
   return (
     <>
       {/* Precision center dot */}
-      <div
-        className={`cursor-dot ${isHovering ? 'is-hover' : ''} ${isClicking ? 'is-click' : ''}`}
-        style={{
-          transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`
-        }}
-      />
+      <div ref={dotRef} className="cursor-dot" style={{ opacity: 0 }} />
 
       {/* Trailing luminous aura ring */}
-      <div
-        className={`cursor-ring ${isHovering ? 'is-hover' : ''} ${label ? 'has-label' : ''} ${isClicking ? 'is-click' : ''}`}
-        style={{
-          transform: `translate3d(${trail.x}px, ${trail.y}px, 0)`
-        }}
-      >
-        {label && <span className="cursor-label">{label}</span>}
+      <div ref={ringRef} className="cursor-ring" style={{ opacity: 0 }}>
+        <span ref={labelRef} className="cursor-label" />
       </div>
     </>
   )
 }
+

@@ -133,28 +133,25 @@ export function ObjectStudio() {
   })
 
   const [activeCard, setActiveCard] = useState<string | null>(null)
-  const [tiltStates, setTiltStates] = useState<Record<string, { x: number; y: number }>>({})
 
   const handleMaterialChange = (objId: string, matIndex: number) => {
     setSelectedMaterials((prev) => ({ ...prev, [objId]: matIndex }))
     sound.playTick(600 + matIndex * 150)
   }
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>, objId: string) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
-    const y = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
-    setTiltStates((prev) => ({
-      ...prev,
-      [objId]: { x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)) }
-    }))
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const card = e.currentTarget
+    const rect = card.getBoundingClientRect()
+    const x = Math.max(-1, Math.min(1, (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)))
+    const y = Math.max(-1, Math.min(1, (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)))
+    card.style.setProperty('--tilt-x', x.toFixed(3))
+    card.style.setProperty('--tilt-y', y.toFixed(3))
   }
 
-  const handleMouseLeave = (objId: string) => {
-    setTiltStates((prev) => ({
-      ...prev,
-      [objId]: { x: 0, y: 0 }
-    }))
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    const card = e.currentTarget
+    card.style.setProperty('--tilt-x', '0')
+    card.style.setProperty('--tilt-y', '0')
   }
 
   return (
@@ -173,7 +170,6 @@ export function ObjectStudio() {
         {OBJECTS_DATA.map((item) => {
           const matIdx = selectedMaterials[item.id] || 0
           const currentMat = item.materials[matIdx]
-          const tilt = tiltStates[item.id] || { x: 0, y: 0 }
           const isDetailOpen = activeCard === item.id
 
           return (
@@ -181,10 +177,10 @@ export function ObjectStudio() {
               key={item.id}
               className={`object-luxury-card ${isDetailOpen ? 'is-expanded' : ''}`}
               data-cursor="TOUCH"
-              onMouseMove={(e) => handleMouseMove(e, item.id)}
-              onMouseLeave={() => handleMouseLeave(item.id)}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
               style={{
-                transform: `perspective(1000px) rotateY(${tilt.x * 6}deg) rotateX(${-tilt.y * 6}deg) translateZ(0)`
+                transform: 'perspective(1000px) rotateY(calc(var(--tilt-x, 0) * 6deg)) rotateX(calc(var(--tilt-y, 0) * -6deg)) translateZ(0)'
               }}
             >
               {/* Card top bar */}
@@ -198,7 +194,7 @@ export function ObjectStudio() {
                 <div
                   className="specular-glint"
                   style={{
-                    transform: `translate(${tilt.x * 50}px, ${tilt.y * 50}px)`
+                    transform: 'translate3d(calc(var(--tilt-x, 0) * 50px), calc(var(--tilt-y, 0) * 50px), 0)'
                   }}
                 />
 
