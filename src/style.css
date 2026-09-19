@@ -2573,11 +2573,11 @@ header .header .mobile-menu .bottom a {
 }
 
 .ks-ascent h3 {
-  font-family: var(--font-display);
-  font-size: clamp(25px, 2.25vw, 36px);
+  font-family: var(--font-headline);
+  font-size: clamp(24px, 2vw, 33px);
   font-weight: 700;
-  line-height: 0.94;
-  letter-spacing: -0.025em;
+  line-height: 1.04;
+  letter-spacing: -0.018em;
   text-transform: uppercase;
   color: #05080f;
   margin: 0 0 13px;
