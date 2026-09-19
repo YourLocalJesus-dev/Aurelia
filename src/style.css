@@ -2577,7 +2577,6 @@ header .header .mobile-menu .bottom a {
   margin: 24px 0 0;
   max-width: 92%;
 }
-
 .ks-rings-hud {
   position: absolute;
   top: clamp(90px, 13vh, 150px);
@@ -2794,6 +2793,7 @@ header .header .mobile-menu .bottom a {
 }
 
 @media (max-width: 991px) {
+ @media (max-width: 991px) {
  @media (max-width: 991px) {
   .ks-ascent {
     width: calc(100% - 40px);
