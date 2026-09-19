@@ -63,7 +63,7 @@ class SoothingAmbientAudioEngine {
       this.ctx = new AudioContextClass()
 
       this.masterGain = this.ctx.createGain()
-      this.masterGain.gain.setValueAtTime(0.3, this.ctx.currentTime)
+      this.masterGain.gain.setValueAtTime(0.42, this.ctx.currentTime)
 
       this.warmthFilter = this.ctx.createBiquadFilter()
       this.warmthFilter.type = 'lowpass'
@@ -120,7 +120,7 @@ class SoothingAmbientAudioEngine {
 
     if (this.masterGain && this.ctx) {
       const now = this.ctx.currentTime
-      const target = this.isMuted ? 0 : 0.3
+      const target = this.isMuted ? 0 : 0.42
 
       this.masterGain.gain.cancelScheduledValues(now)
       this.masterGain.gain.setTargetAtTime(target, now, 0.14)
