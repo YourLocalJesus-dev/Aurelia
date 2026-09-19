@@ -807,16 +807,16 @@ export function JellyCanvas({
       refs.current.words = words
 
       const aureliaMat = makeGlass({
-        color: new THREE.Color('#121b2b'),
-        transmission: 0.8,
-        roughness: 0.05,
-        metalness: 0.1,
-        thickness: 1.15,
-        ior: 1.56,
+        color: new THREE.Color('#ffffff'),
+        transmission: 0.92,
+        roughness: 0.08,
+        metalness: 0.02,
+        thickness: 0.55,
+        ior: 1.5,
         opacity: 0,
-        iridescence: 0.55,
-        reflectivity: 0.95,
-        envMapIntensity: 4.4,
+        iridescence: 0.45,
+        reflectivity: 0.65,
+        envMapIntensity: 2.2,
         depthWrite: true,
       })
 
@@ -824,12 +824,12 @@ export function JellyCanvas({
       const built = letters.map((ch) => {
         const geo = new TextGeometry(ch, {
           font,
-          size: 0.88,
-          depth: 0.24,
+          size: 0.58,
+          depth: 0.16,
           curveSegments: 8,
           bevelEnabled: true,
-          bevelThickness: 0.018,
-          bevelSize: 0.013,
+          bevelThickness: 0.014,
+          bevelSize: 0.01,
           bevelSegments: 4,
         })
         geo.computeBoundingBox()
@@ -856,20 +856,20 @@ export function JellyCanvas({
 
       const balls: Ball[] = []
       const ballMat = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        emissive: 0xffffff,
-        emissiveIntensity: 0.14,
-        roughness: 0.12,
-        metalness: 0.03,
-        transmission: 0.2,
-        thickness: 1.2,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        ior: 1.5,
-        reflectivity: 0.94,
-        envMapIntensity: 3.4,
-        transparent: true,
-        opacity: 0,
+          color: 0xffffff,
+          emissive: 0x000000,
+          emissiveIntensity: 0,
+          roughness: 0.28,
+          metalness: 0.02,
+          transmission: 0.08,
+          thickness: 0.8,
+          clearcoat: 0.4,
+          clearcoatRoughness: 0.08,
+          ior: 1.5,
+          reflectivity: 0.35,
+          envMapIntensity: 0.8,
+          transparent: true,
+          opacity: 0,
       })
       const ballGeo = new THREE.SphereGeometry(1, 28, 28)
       refs.current.ballMat = ballMat
