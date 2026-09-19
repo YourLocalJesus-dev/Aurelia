@@ -2519,17 +2519,15 @@ header .header .mobile-menu .bottom a {
 .ks-ascent {
   position: absolute;
   top: 50%;
-  width: min(30vw, 400px);
+  width: min(34vw, 520px);
+  padding: 34px 32px 38px;
+  box-sizing: border-box;
   will-change: transform, opacity, filter;
-  background: rgba(255, 255, 255, 0.5);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 18px;
-  padding: 22px 24px 24px;
-  box-shadow:
-    0 24px 60px -14px rgba(9, 14, 24, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  background: transparent;
+  border: 2px solid #ff2b1f;
+  border-radius: 0;
+  box-shadow: none;
+  color: #050505;
 }
 
 .ks-ascent-left {
@@ -2545,36 +2543,39 @@ header .header .mobile-menu .bottom a {
 }
 
 .ks-ascent-tag {
-  display: inline-block;
+  display: block;
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #1d4ed8;
-  background: rgba(37, 99, 235, 0.09);
-  border: 1px solid rgba(37, 99, 235, 0.2);
-  padding: 4px 11px;
-  border-radius: 999px;
-  margin-bottom: 14px;
+  color: #050505;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  margin: 0 0 24px;
 }
 
 .ks-ascent h3 {
-  font-family: var(--font-headline);
-  font-size: clamp(17px, 1.5vw, 23px);
-  font-weight: 700;
-  line-height: 1.22;
-  letter-spacing: -0.022em;
-  color: #070b14;
-  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.65vw, 46px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: #050505;
+  margin: 0;
 }
 
 .ks-ascent p {
   font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #33415a;
-  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: #151515;
+  margin: 24px 0 0;
+  max-width: 92%;
 }
 
 .ks-rings-hud {
@@ -2793,6 +2794,7 @@ header .header .mobile-menu .bottom a {
 }
 
 @media (max-width: 991px) {
+ @media (max-width: 991px) {
   .ks-ascent {
     width: calc(100% - 40px);
     left: 20px;
@@ -2801,6 +2803,21 @@ header .header .mobile-menu .bottom a {
     bottom: clamp(110px, 18vh, 170px);
     transform: none;
     margin-top: 0;
+    padding: 28px 24px 30px;
+  }
+
+  .ks-ascent-tag {
+    margin-bottom: 18px;
+  }
+
+  .ks-ascent h3 {
+    font-size: clamp(26px, 7vw, 42px);
+  }
+
+  .ks-ascent p {
+    font-size: 12.5px;
+    max-width: 100%;
+    margin-top: 20px;
   }
 
   .ks-rings-inner {
@@ -2824,7 +2841,6 @@ header .header .mobile-menu .bottom a {
     display: none;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .ks-turn,
   .ks-ascent,
