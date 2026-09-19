@@ -348,11 +348,15 @@ function App() {
   }, [cursorText, isEntered, isAssembled])
 
   useEffect(() => {
-    if (!isEntered && isAssembled) {
-      setCursorText('CLICK AND\nHOLD')
-      setIsCursorExpanded(true)
-    }
-  }, [isEntered, isAssembled])
+  if (!isEntered && isAssembled) {
+    setCursorText('CLICK AND\nHOLD')
+    setIsCursorExpanded(true)
+  } else if (isEntered) {
+    setCursorText('')
+    setIsCursorExpanded(false)
+    setIsCursorDiff(false)
+  }
+}, [isEntered, isAssembled])
 
   const setCursorHover = (text: string, isDiff: boolean = false) => {
     setCursorText(text)
