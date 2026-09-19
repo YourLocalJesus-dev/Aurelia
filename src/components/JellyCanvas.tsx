@@ -1125,7 +1125,7 @@ export function JellyCanvas({
         worldGroup.rotation.x = lerp(worldGroup.rotation.x, 0, DAMP(0.06))
 
         const toRings = clamp01(s / TL.rings.start)
-        const startToRingsScale = lerp(2.1, 0.58, easeInOutCubic(toRings))
+        const startToRingsScale = lerp(1.8, 0.58, easeInOutCubic(toRings))
 
         if (s < TL.rotate.end) {
 
