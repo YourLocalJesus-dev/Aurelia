@@ -807,29 +807,33 @@ export function JellyCanvas({
       refs.current.words = words
 
       const aureliaMat = makeGlass({
-        color: new THREE.Color('#ffffff'),
-        transmission: 0.92,
-        roughness: 0.08,
-        metalness: 0.02,
-        thickness: 0.55,
-        ior: 1.5,
+        color: new THREE.Color('#f4f8ff'),
+        transmission: 0.98,
+        roughness: 0.02,
+        metalness: 0.0,
+        thickness: 1.1,
+        ior: 1.6,
         opacity: 0,
-        iridescence: 0.45,
-        reflectivity: 0.65,
-        envMapIntensity: 2.2,
+        iridescence: 0.9,
+        iridescenceIOR: 1.42,
+        iridescenceThicknessRange: [120, 520],
+        reflectivity: 0.45,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.0,
+        envMapIntensity: 3.6,
         depthWrite: true,
       })
 
-      const letters = 'AURELIA'.split('')
+      const letters = 'aurelia'.split('')
       const built = letters.map((ch) => {
         const geo = new TextGeometry(ch, {
           font,
-          size: 0.58,
-          depth: 0.16,
+          size: 0.4,
+          depth: 0.11,
           curveSegments: 8,
           bevelEnabled: true,
-          bevelThickness: 0.014,
-          bevelSize: 0.01,
+          bevelThickness: 0.01,
+          bevelSize: 0.008,
           bevelSegments: 4,
         })
         geo.computeBoundingBox()
@@ -837,7 +841,7 @@ export function JellyCanvas({
         return { geo, w: bb.max.x - bb.min.x, h: bb.max.y - bb.min.y }
       })
 
-      const spacing = 0.19
+      const spacing = 0.12
       const totalW = built.reduce((sum, b) => sum + b.w + spacing, -spacing)
       const maxH = Math.max(...built.map((b) => b.h))
       let cx = -totalW / 2
@@ -856,20 +860,19 @@ export function JellyCanvas({
 
       const balls: Ball[] = []
       const ballMat = new THREE.MeshPhysicalMaterial({
-          color: 0xffffff,
-          emissive: 0x000000,
-          emissiveIntensity: 0,
-          roughness: 0.28,
-          metalness: 0.02,
-          transmission: 0.08,
-          thickness: 0.8,
-          clearcoat: 0.4,
-          clearcoatRoughness: 0.08,
-          ior: 1.5,
-          reflectivity: 0.35,
-          envMapIntensity: 0.2,
-          transparent: true,
-          opacity: 0,
+        color: 0xe8ecf2,
+        roughness: 0.72,
+        metalness: 0.0,
+        transmission: 0.0,
+        thickness: 0.0,
+        clearcoat: 0.0,
+        clearcoatRoughness: 0.0,
+        ior: 1.4,
+        reflectivity: 0.08,
+        envMapIntensity: 0.0,
+        transparent: true,
+        opacity: 0,
+        toneMapped: true,
       })
       const ballGeo = new THREE.SphereGeometry(1, 28, 28)
       refs.current.ballMat = ballMat
@@ -1425,7 +1428,7 @@ export function JellyCanvas({
         const fadeTarget = easeOutCubic(clamp01((s - contactStart) / 0.085))
         r.aureliaFade = lerp(r.aureliaFade, fadeTarget, DAMP(0.09))
         if (r.aureliaMat) r.aureliaMat.opacity = r.aureliaFade * 0.96
-        if (r.ballMat) r.ballMat.opacity = r.aureliaFade
+        if (r.ballMat) r.ballMat.opacity = r.aureliaFade * 0.85
 
         contactGroup.position.set(0, WORLD.aureliaY - (1 - eased) * 6.5, 1.4)
         contactGroup.scale.setScalar(lerp(0.9, 1.0, eased))
