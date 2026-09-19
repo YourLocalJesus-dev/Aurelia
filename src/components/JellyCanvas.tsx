@@ -1110,7 +1110,7 @@ export function JellyCanvas({
         jellyPos.set(0, -0.1, 0)
         jellyGroup.position.copy(jellyPos)
         jellyGroup.rotation.set(0, t * 0.15, 0)
-        jellyGroup.scale.setScalar(2.1)
+        jellyGroup.scale.setScalar(1.8)
         jellyGroup.visible = true
         if (r.jellyMatOuter) r.jellyMatOuter.opacity = configRef.current.opacity
         if (r.jellyMatInner) r.jellyMatInner.opacity = 0.9
