@@ -1175,8 +1175,9 @@ header .header .mobile-menu .bottom a {
 .home-footer {
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.45) 25%, rgba(255, 255, 255, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.45) 15%, rgba(255, 255, 255, 0.82) 35%, rgba(255, 255, 255, 0.96) 100%);
   bottom: 0;
+  height: 50vh;
   min-height: 50vh;
   left: 0;
   position: relative;
@@ -1189,15 +1190,22 @@ header .header .mobile-menu .bottom a {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 50vh;
   justify-content: space-between;
-  padding: 25px 20px 15px;
+  padding: 18px 20px 14px;
   position: relative;
   width: 100%;
 }
 
 @media (max-width: 767px) {
+  .home-footer {
+    height: auto;
+    min-height: 50vh;
+  }
+
   .home-footer .wrapper {
-    padding: 25px 8px 15px;
+    min-height: 50vh;
+    padding: 20px 12px 16px;
   }
 }
 
@@ -1390,6 +1398,7 @@ header .header .mobile-menu .bottom a {
   pointer-events: none;
   position: absolute;
   top: 0;
+  bottom: 0;
   width: 100%;
 }
 

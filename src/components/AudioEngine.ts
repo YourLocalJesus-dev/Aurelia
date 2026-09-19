@@ -64,7 +64,7 @@ class SoothingAmbientAudioEngine {
       this.ctx = new AudioContextClass()
 
       this.masterGain = this.ctx.createGain()
-      this.masterGain.gain.setValueAtTime(0.42, this.ctx.currentTime)
+      this.masterGain.gain.setValueAtTime(0.55, this.ctx.currentTime)
 
       this.warmthFilter = this.ctx.createBiquadFilter()
       this.warmthFilter.type = 'lowpass'
@@ -86,11 +86,11 @@ class SoothingAmbientAudioEngine {
       this.compressor.connect(this.ctx.destination)
 
       this.musicGain = this.ctx.createGain()
-      this.musicGain.gain.setValueAtTime(0.5, this.ctx.currentTime)
+      this.musicGain.gain.setValueAtTime(0.65, this.ctx.currentTime)
       this.musicGain.connect(this.masterGain)
 
       this.sfxGain = this.ctx.createGain()
-      this.sfxGain.gain.setValueAtTime(0.2, this.ctx.currentTime)
+      this.sfxGain.gain.setValueAtTime(0.26, this.ctx.currentTime)
 
       this.sfxDryGain = this.ctx.createGain()
       this.sfxDryGain.gain.setValueAtTime(0.75, this.ctx.currentTime)
@@ -328,11 +328,11 @@ class SoothingAmbientAudioEngine {
     filter.Q.setValueAtTime(4, now)
 
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.linearRampToValueAtTime(0.038, now + 0.012)
+    gain.gain.linearRampToValueAtTime(0.05, now + 0.012)
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6)
 
     harmonicGain.gain.setValueAtTime(0.0001, now)
-    harmonicGain.gain.linearRampToValueAtTime(0.012, now + 0.008)
+    harmonicGain.gain.linearRampToValueAtTime(0.016, now + 0.008)
     harmonicGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6)
 
     oscillator.connect(filter)
@@ -386,7 +386,7 @@ class SoothingAmbientAudioEngine {
     filter.Q.setValueAtTime(2.5, now)
 
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.linearRampToValueAtTime(0.026, now + 0.01)
+    gain.gain.linearRampToValueAtTime(0.034, now + 0.01)
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.75)
 
     osc.connect(filter)
@@ -472,7 +472,7 @@ class SoothingAmbientAudioEngine {
     filter.Q.setValueAtTime(0.3, now)
 
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.linearRampToValueAtTime(0.018, now + 0.015)
+    gain.gain.linearRampToValueAtTime(0.024, now + 0.015)
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3)
 
     oscillator.connect(filter)
@@ -506,7 +506,7 @@ class SoothingAmbientAudioEngine {
     )
 
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.linearRampToValueAtTime(0.03, now + 0.05)
+    gain.gain.linearRampToValueAtTime(0.04, now + 0.05)
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.75)
 
     oscillator.connect(gain)

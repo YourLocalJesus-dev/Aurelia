@@ -35,7 +35,7 @@ export function ScrollNarrative({ isEntered }: Props) {
       const top = footer.getBoundingClientRect().top
       const vh = window.innerHeight
 
-      footerFade = clamp01((top - vh * 0.35) / (vh * 0.4))
+      footerFade = clamp01((top - vh * 0.5) / (vh * 0.35))
       root.style.opacity = String(footerFade)
       root.style.visibility = footerFade < 0.01 ? 'hidden' : 'visible'
     }
