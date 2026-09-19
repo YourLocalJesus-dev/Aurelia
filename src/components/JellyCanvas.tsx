@@ -867,7 +867,7 @@ export function JellyCanvas({
           clearcoatRoughness: 0.08,
           ior: 1.5,
           reflectivity: 0.35,
-          envMapIntensity: 0.8,
+          envMapIntensity: 0.2,
           transparent: true,
           opacity: 0,
       })
