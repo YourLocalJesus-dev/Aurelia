@@ -749,12 +749,12 @@ export function JellyCanvas({
       TL.turns.forEach((turn, i) => {
         const geo = new TextGeometry(turn.word, {
           font,
-          size: 1.12,
-          depth: 0.26,
+          size: 1.6,
+          depth: 0.34,
           curveSegments: 6,
           bevelEnabled: true,
-          bevelThickness: 0.03,
-          bevelSize: 0.02,
+          bevelThickness: 0.035,
+          bevelSize: 0.024,
           bevelSegments: 3,
         })
         geo.computeBoundingBox()
@@ -1302,11 +1302,17 @@ export function JellyCanvas({
 
           tw.mat.opacity = show * 0.97
 
-          _wordDir.copy(camLook).sub(camPos).normalize()
-          tw.group.position.copy(camLook).addScaledVector(_wordDir, TURN_WORD_RADIUS)
-
-          tw.group.rotation.y = Math.atan2(-_wordDir.x, -_wordDir.z)
-          tw.group.scale.setScalar(1)
+          const a = tw.angle
+          const leaving = q > 0.5
+          const rad = TURN_WORD_RADIUS + (1 - show) * (leaving ? 2.6 : 1.2)
+          const yOff = leaving ? (1 - show) * 0.55 : -(1 - show) * 1.45
+          tw.group.position.set(
+            -Math.sin(a) * rad,
+            -0.15 + yOff,
+            -Math.cos(a) * rad
+          )
+          tw.group.rotation.y = a
+          tw.group.scale.setScalar(0.82 + show * 0.18)
         })
       }
 
