@@ -13,6 +13,7 @@ import {
   scrollStore, TL, WORLD, PROJECTS, TURN_ANCHORS,
   clamp01, norm, easeInCubic, easeInOutCubic, easeOutCubic, easeOutQuint, lerp,
 } from '../scroll'
+import { sound } from './AudioEngine'
 
 export interface JellyConfig {
   color1: string
@@ -49,6 +50,8 @@ interface Shard {
   burst: THREE.Vector3
   burstSet: boolean
   ease: number
+  hoverPush: number
+  lastInteracted: number
 }
 
 interface Ball {
@@ -58,6 +61,7 @@ interface Ball {
   radius: number
   phase: number
   baseScale: number
+  lastSoundTime: number
 }
 
 interface ProjectRing {
@@ -524,6 +528,8 @@ export function JellyCanvas({
             burst: new THREE.Vector3(),
             burstSet: false,
             ease: 0,
+            hoverPush: 0,
+            lastInteracted: 0,
             field: (() => {
               const ang = HASH(i * 67.1) * Math.PI * 2
               const rad = 7.5 + HASH(i * 71.9) * 9.5
@@ -806,27 +812,25 @@ export function JellyCanvas({
       })
       refs.current.words = words
 
-      const aureliaMat = new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#c8d8ee'),
-        metalness: 0.0,
-        roughness: 0.03,
-        transmission: 0.86,
-        ior: 1.55,
-        thickness: 1.5,
+      const aureliaMat = makeGlass({
+        color: new THREE.Color('#f0f6ff'),
+        metalness: 0.01,
+        roughness: 0.02,
+        transmission: 0.98,
+        ior: 1.54,
+        thickness: 1.8,
         transparent: true,
         opacity: 0,
-        depthWrite: true,
+        depthWrite: false,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.0,
-        iridescence: 0.6,
-        iridescenceIOR: 1.4,
-        iridescenceThicknessRange: [100, 500],
-        reflectivity: 0.7,
-        specularIntensity: 1.0,
-        specularColor: new THREE.Color('#ffffff'),
-        envMapIntensity: 6.0,
-        attenuationColor: new THREE.Color('#7a95bc'),
-        attenuationDistance: 1.8,
+        clearcoatRoughness: 0.01,
+        iridescence: 0.88,
+        iridescenceIOR: 1.34,
+        iridescenceThicknessRange: [120, 520],
+        reflectivity: 0.55,
+        envMapIntensity: 5.8,
+        attenuationColor: new THREE.Color('#94bae0'),
+        attenuationDistance: 2.6,
         side: THREE.DoubleSide,
       })
 
@@ -865,20 +869,26 @@ export function JellyCanvas({
       refs.current.aureliaHalfW = totalW / 2 + 0.55
 
       const balls: Ball[] = []
-      const ballMat = new THREE.MeshPhysicalMaterial({
-        color: 0x8a94a8,
-        roughness: 0.92,
-        metalness: 0.0,
-        transmission: 0.0,
-        thickness: 0.0,
-        clearcoat: 0.0,
-        clearcoatRoughness: 0.0,
-        ior: 1.4,
-        reflectivity: 0.02,
-        envMapIntensity: 0.0,
+      const ballMat = makeGlass({
+        color: new THREE.Color('#f0f5fc'),
+        metalness: 0.02,
+        roughness: 0.03,
+        transmission: 0.95,
+        ior: 1.52,
+        thickness: 1.4,
         transparent: true,
         opacity: 0,
-        toneMapped: true,
+        depthWrite: false,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.0,
+        iridescence: 0.88,
+        iridescenceIOR: 1.34,
+        iridescenceThicknessRange: [100, 480],
+        reflectivity: 0.45,
+        envMapIntensity: 5.0,
+        attenuationColor: new THREE.Color('#8eb5df'),
+        attenuationDistance: 2.2,
+        side: THREE.DoubleSide,
       })
       const ballGeo = new THREE.SphereGeometry(1, 28, 28)
       refs.current.ballMat = ballMat
@@ -906,6 +916,7 @@ export function JellyCanvas({
           radius,
           phase: HASH(i * 6.7) * Math.PI * 2,
           baseScale: radius,
+          lastSoundTime: 0,
         })
       }
       refs.current.balls = balls
@@ -915,6 +926,7 @@ export function JellyCanvas({
 
     const raycaster = new THREE.Raycaster()
     const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+    const shellSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), SHELL_RADIUS)
     const tmpHit = new THREE.Vector3()
     const _ndc = new THREE.Vector2()
 
@@ -927,13 +939,16 @@ export function JellyCanvas({
 
       if (!r.isEntered) {
         raycaster.setFromCamera(_ndc.set(r.mx, r.my), camera)
-        if (raycaster.ray.intersectPlane(planeZ, tmpHit)) {
+        const hitSphere = raycaster.ray.intersectSphere(shellSphere, tmpHit)
+        if (hitSphere) {
           r.mouse3D.copy(tmpHit)
-          const near = Math.hypot(tmpHit.x, tmpHit.y) < 3.4 && r.isTransitionOpened
-          if (near !== r.isHovering) {
-            r.isHovering = near
-            onHoverModel?.(near)
-          }
+        } else if (raycaster.ray.intersectPlane(planeZ, tmpHit)) {
+          r.mouse3D.copy(tmpHit)
+        }
+        const near = Math.hypot(tmpHit.x, tmpHit.y) < 3.4 && r.isTransitionOpened
+        if (near !== r.isHovering) {
+          r.isHovering = near
+          onHoverModel?.(near)
         }
       } else if (r.s >= TL.rings.start - 0.02 && r.s <= TL.rings.end + 0.02) {
         raycaster.setFromCamera(_ndc.set(r.mx, r.my), camera)
@@ -972,6 +987,8 @@ export function JellyCanvas({
       const r = refs.current
       if (r.isEntered && r.hoveredRing !== null) {
         onRingClick?.(r.hoveredRing)
+      } else if (!r.isEntered && r.isHovering && r.isTransitionOpened) {
+        sound.playGlassInteraction(1.15)
       }
     }
 
@@ -1362,10 +1379,21 @@ export function JellyCanvas({
           if (r.isHovering && r.isTransitionOpened) {
             _shardWorld.copy(item.home).applyMatrix4(worldGroup.matrixWorld)
             const dist = _shardWorld.distanceTo(m3)
-            if (dist < HOVER_RADIUS) {
-
-              const f = Math.pow(1 - dist / HOVER_RADIUS, 1.5)
-              item.target.addScaledVector(item.normal, -HOVER_DEPTH * f)
+            const HOVER_R = 1.65
+            if (dist < HOVER_R) {
+              const f = Math.pow(1 - dist / HOVER_R, 1.6)
+              item.hoverPush = lerp(item.hoverPush, f, 0.28)
+              const now = performance.now()
+              if (f > 0.28 && now - item.lastInteracted > 260) {
+                item.lastInteracted = now
+                const pitchScale = 0.8 + clamp01((item.home.y + SHELL_RADIUS) / (SHELL_RADIUS * 2)) * 0.45
+                sound.playGlassInteraction(pitchScale)
+              }
+            } else {
+              item.hoverPush = lerp(item.hoverPush, 0, 0.08)
+            }
+            if (item.hoverPush > 0.001) {
+              item.target.addScaledVector(item.normal, -HOVER_DEPTH * item.hoverPush * 1.5)
             }
           }
           if (hold > 0.01) item.target.addScaledVector(item.scatter, hold * hold * 0.95)
@@ -1373,6 +1401,10 @@ export function JellyCanvas({
           item.mesh.position.copy(item.current)
 
           item.mesh.quaternion.copy(item.baseQuat)
+          if (item.hoverPush > 0.001) {
+            item.mesh.rotateX(item.spin.x * item.hoverPush * 14)
+            item.mesh.rotateY(item.spin.y * item.hoverPush * 14)
+          }
           if (hold > 0.001) {
             const k = hold * hold * 72
             item.mesh.rotateX(item.spin.x * k)
@@ -1433,8 +1465,8 @@ export function JellyCanvas({
 
         const fadeTarget = easeOutCubic(clamp01((s - contactStart) / 0.085))
         r.aureliaFade = lerp(r.aureliaFade, fadeTarget, DAMP(0.09))
-        if (r.aureliaMat) r.aureliaMat.opacity = r.aureliaFade * 1.0
-        if (r.ballMat) r.ballMat.opacity = r.aureliaFade * 0.9
+        if (r.aureliaMat) r.aureliaMat.opacity = r.aureliaFade * 0.98
+        if (r.ballMat) r.ballMat.opacity = r.aureliaFade * 0.95
 
         contactGroup.position.set(0, WORLD.aureliaY - (1 - eased) * 6.5, 1.4)
         contactGroup.scale.setScalar(lerp(0.9, 1.0, eased))
@@ -1456,12 +1488,18 @@ export function JellyCanvas({
             const dy = p.y - localCursor.y
             const dz = p.z - localCursor.z
             const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
-            const R = 1.75
+            const R = 1.85
             if (dist < R && dist > 1e-4) {
-              const force = Math.pow(1 - dist / R, 1.5) * 0.2
+              const force = Math.pow(1 - dist / R, 1.5) * 0.24
               b.vel.x += (dx / dist) * force
               b.vel.y += (dy / dist) * force
-              b.vel.z += (dz / dist) * force * 0.55
+              b.vel.z += (dz / dist) * force * 0.65
+              const now = performance.now()
+              if (force > 0.03 && now - b.lastSoundTime > 260) {
+                b.lastSoundTime = now
+                sound.playBallInteraction(Math.floor((b.home.x + 3.0) * 2))
+              }
+              b.mesh.scale.setScalar(b.baseScale * (1 + force * 2.2))
             }
           }
 
@@ -1476,6 +1514,7 @@ export function JellyCanvas({
           p.add(b.vel)
           b.mesh.rotation.x += b.vel.y * 0.3
           b.mesh.rotation.y += b.vel.x * 0.3
+          b.mesh.scale.lerp(new THREE.Vector3(b.baseScale, b.baseScale, b.baseScale), 0.08)
         })
       }
 

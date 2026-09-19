@@ -14,6 +14,7 @@ class SoothingAmbientAudioEngine {
   private chordTimer: number | null = null
   private activeVoices: GainNode[] = []
   private lastShardChimeTime = 0
+  private lastBallSoundTime = 0
 
   private holdOsc: OscillatorNode | null = null
   private holdFilter: BiquadFilterNode | null = null
@@ -295,44 +296,108 @@ class SoothingAmbientAudioEngine {
     }, 9000)
   }
 
-  public playShardChime() {
+  public playShardChime(freqScale = 1) {
     this.initCtx()
 
     if (!this.ctx || !this.sfxGain || this.isMuted) return
 
     const now = this.ctx.currentTime
 
-    if (now - this.lastShardChimeTime < 0.16) return
+    if (now - this.lastShardChimeTime < 0.065) return
 
     this.lastShardChimeTime = now
 
-    const notes = [783.99, 880, 987.77, 1174.66, 1318.51]
-    const frequency = notes[Math.floor(Math.random() * notes.length)]
+    const notes = [783.99, 880, 987.77, 1046.5, 1174.66, 1318.51, 1567.98]
+    const baseFreq = notes[Math.floor(Math.random() * notes.length)]
+    const frequency = baseFreq * freqScale
 
     const oscillator = this.ctx.createOscillator()
+    const harmonic = this.ctx.createOscillator()
     const filter = this.ctx.createBiquadFilter()
     const gain = this.ctx.createGain()
+    const harmonicGain = this.ctx.createGain()
 
     oscillator.type = 'sine'
     oscillator.frequency.setValueAtTime(frequency, now)
 
+    harmonic.type = 'sine'
+    harmonic.frequency.setValueAtTime(frequency * 2.756, now)
+
     filter.type = 'bandpass'
     filter.frequency.setValueAtTime(frequency, now)
-    filter.Q.setValueAtTime(3, now)
+    filter.Q.setValueAtTime(4, now)
 
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.linearRampToValueAtTime(0.034, now + 0.02)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.7)
+    gain.gain.linearRampToValueAtTime(0.038, now + 0.012)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6)
+
+    harmonicGain.gain.setValueAtTime(0.0001, now)
+    harmonicGain.gain.linearRampToValueAtTime(0.012, now + 0.008)
+    harmonicGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6)
 
     oscillator.connect(filter)
+    harmonic.connect(harmonicGain)
+    harmonicGain.connect(filter)
     filter.connect(gain)
     gain.connect(this.sfxGain)
 
     oscillator.start(now)
-    oscillator.stop(now + 1.8)
+    harmonic.start(now)
+    oscillator.stop(now + 1.65)
+    harmonic.stop(now + 0.65)
 
     oscillator.onended = () => {
       oscillator.disconnect()
+      harmonic.disconnect()
+      harmonicGain.disconnect()
+      filter.disconnect()
+      gain.disconnect()
+    }
+  }
+
+  public playGlassInteraction(freqScale = 1) {
+    this.playShardChime(freqScale)
+  }
+
+  public playBallInteraction(pitchIndex = 0) {
+    this.initCtx()
+
+    if (!this.ctx || !this.sfxGain || this.isMuted) return
+
+    const now = this.ctx.currentTime
+
+    if (now - this.lastBallSoundTime < 0.055) return
+
+    this.lastBallSoundTime = now
+
+    const scale = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66]
+    const note = scale[Math.abs(pitchIndex) % scale.length]
+
+    const osc = this.ctx.createOscillator()
+    const filter = this.ctx.createBiquadFilter()
+    const gain = this.ctx.createGain()
+
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(note * 0.96, now)
+    osc.frequency.exponentialRampToValueAtTime(note * 1.08, now + 0.08)
+
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(note * 1.1, now)
+    filter.Q.setValueAtTime(2.5, now)
+
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.linearRampToValueAtTime(0.026, now + 0.01)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.75)
+
+    osc.connect(filter)
+    filter.connect(gain)
+    gain.connect(this.sfxGain)
+
+    osc.start(now)
+    osc.stop(now + 0.8)
+
+    osc.onended = () => {
+      osc.disconnect()
       filter.disconnect()
       gain.disconnect()
     }
@@ -635,6 +700,7 @@ class SoothingAmbientAudioEngine {
     if (!this.ctx || !this.sfxGain || this.isMuted) return
 
     const ctx = this.ctx
+    const sfxGain = this.sfxGain
     const now = ctx.currentTime
 
     const sub = ctx.createOscillator()
@@ -721,7 +787,7 @@ class SoothingAmbientAudioEngine {
 
       oscillator.connect(filter)
       filter.connect(gain)
-      gain.connect(this.sfxGain)
+      gain.connect(sfxGain)
 
       oscillator.start(start)
       oscillator.stop(start + 2.4)

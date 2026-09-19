@@ -1212,6 +1212,10 @@ header .header .mobile-menu .bottom a {
   text-align: center;
   text-transform: uppercase;
   z-index: 2;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 45%, #94a3b8 70%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(255, 255, 255, 0.45));
 }
 
 @media (max-width: 767px) {
@@ -2379,7 +2383,7 @@ header .header .mobile-menu .bottom a {
   color: #000000;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 .hero-bottom-bar .right-hold-group {
@@ -2395,7 +2399,7 @@ header .header .mobile-menu .bottom a {
   color: #000000;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
   transition: opacity 0.2s ease;
 }
 
@@ -2564,12 +2568,27 @@ header .header .mobile-menu .bottom a {
   vertical-align: -1px;
 }
 
+.ks-ascent-left .ks-ascent-tag::before,
+.ks-ascent-right .ks-ascent-tag::before {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+  vertical-align: middle;
+  line-height: 1;
+  flex: none;
+}
+
 .ks-ascent-left .ks-ascent-tag::before {
-  content: "🫧";
+  transform: rotate(135deg);
+  margin-right: 0.4em;
 }
 
 .ks-ascent-right .ks-ascent-tag::before {
-  content: "⚡";
+  transform: rotate(-45deg);
+  margin-left: 0.4em;
 }
 
 .ks-ascent h3 {
@@ -2671,6 +2690,7 @@ header .header .mobile-menu .bottom a {
     transform: translateY(9px);
     filter: blur(5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2855,7 +2875,9 @@ header .header .mobile-menu .bottom a {
     display: none;
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .ks-turn,
   .ks-ascent,
   .ks-finale {
